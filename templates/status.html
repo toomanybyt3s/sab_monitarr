@@ -1,0 +1,65 @@
+<div class="status-panel">
+    <div class="status-summary">
+        <h2>Download Status</h2>
+        <div class="status-details">
+            <div class="status-item">
+                <span class="label">Status:</span>
+                <span class="value">{{.Queue.Status}}</span>
+            </div>
+            <div class="status-item">
+                <span class="label">Speed:</span>
+                <span class="value">{{.Queue.Speed}}</span>
+            </div>
+            <div class="status-item">
+                <span class="label">Size Left:</span>
+                <span class="value">{{.Queue.SizeLeft}}</span>
+            </div>
+            <div class="status-item">
+                <span class="label">Time Left:</span>
+                <span class="value">{{.Queue.TimeLeft}}</span>
+            </div>
+            <div class="status-item">
+                <span class="label">Progress:</span>
+                <div class="progress-bar">
+                    <div class="progress" style="width: {{.Queue.Percentage}}%;"></div>
+                </div>
+                <span class="value">{{.Queue.Percentage}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="queue-items">
+        <h2>Download Queue</h2>
+        {{if .Queue.Slots}}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Size Left</th>
+                        <th>Time Left</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Queue.Slots}}
+                    <tr>
+                        <td class="filename">{{.Filename}}</td>
+                        <td>{{.Status}}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: {{.Percentage}}%;"></div>
+                            </div>
+                            <span class="percent">{{.Percentage}}</span>
+                        </td>
+                        <td>{{.SizeLeft}}</td>
+                        <td>{{.TimeLeft}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        {{else}}
+            <p class="empty-queue">No items in queue</p>
+        {{end}}
+    </div>
+</div>

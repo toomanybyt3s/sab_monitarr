@@ -1,0 +1,15 @@
+services:
+  sab_monitarr:
+    build: .
+    container_name: sab_monitarr
+    ports:
+      - "${HOST_PORT:-5959}:5959"
+    environment:
+      - SABMON_SABNZBD_URL=${SABMON_SABNZBD_URL}
+      - SABMON_SABNZBD_API_KEY=${SABMON_SABNZBD_API_KEY}
+      - SABMON_REFRESH_INTERVAL=${SABMON_REFRESH_INTERVAL:-5}
+      - SABMON_DEBUG=${SABMON_DEBUG:-false}
+      - SABMON_LOG_CLIENT_INFO=${SABMON_LOG_CLIENT_INFO:-false}
+    volumes:
+      - ./config.json:/app/config.json:ro
+    restart: unless-stopped

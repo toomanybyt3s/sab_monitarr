@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SABnzbd Monitor</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SABnzbd Download Monitor</h1>
+        </header>
+        
+        <main>
+            <div id="status-container" 
+                 hx-get="/status" 
+                 hx-trigger="load, every {{.RefreshInterval}}s" 
+                 hx-swap="innerHTML">
+                Loading...
+            </div>
+        </main>
+
+        <footer>
+            <p>Auto-refreshing every {{.RefreshInterval}} seconds</p>
+        </footer>
+    </div>
+</body>
+</html>
