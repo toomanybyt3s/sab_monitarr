@@ -64,5 +64,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/sab_monitarr:latest
             ghcr.io/${{ github.repository_owner }}/sab_monitarr:${{ steps.version.outputs.version }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/sab_monitarr:buildcache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/sab_monitarr:buildcache,mode=max

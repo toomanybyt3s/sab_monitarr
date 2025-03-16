@@ -40,7 +40,7 @@ docker run -p 8081:5959 \
   -e SABMON_SABNZBD_URL=http://sabnzbd:8080/sabnzbd \
   -e SABMON_SABNZBD_API_KEY=your-api-key-here \
   -e SABMON_DEBUG=true \
-  yourusername/sab_monitarr
+  ghcr.io/toomanybyt3s/sab_monitarr:latest
 ```
 
 Or using docker-compose:

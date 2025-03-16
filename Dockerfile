@@ -10,6 +10,7 @@ WORKDIR /app
 COPY --from=builder /app/sab_monitarr .
 COPY templates/ /app/templates/
 COPY static/ /app/static/
+COPY favicon/ /app/favicon/
 
 # Default environment variables
 ENV SABMON_REFRESH_INTERVAL=5
