@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SABnzbd Monitor</title>
+    <!-- Favicon -->
+    <link rel="icon" href="/static/img/favicon.ico">
+    <link rel="apple-touch-icon" href="/static/img/android-chrome-512x512.png">
+    <link rel="manifest" href="/static/img/site.webmanifest">
     <link rel="stylesheet" href="/static/css/style.css">
     <script src="https://unpkg.com/htmx.org@1.9.5"></script>
 </head>
@@ -15,9 +19,9 @@
         
         <main>
             <div id="status-container" 
-                 hx-get="/status" 
-                 hx-trigger="load, every {{.RefreshInterval}}s" 
-                 hx-swap="innerHTML">
+                hx-get="/status" 
+                hx-trigger="load, every {{.RefreshInterval}}s" 
+                hx-swap="innerHTML">
                 Loading...
             </div>
         </main>

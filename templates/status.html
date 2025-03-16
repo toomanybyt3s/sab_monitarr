@@ -18,13 +18,6 @@
                 <span class="label">Time Left:</span>
                 <span class="value">{{.Queue.TimeLeft}}</span>
             </div>
-            <div class="status-item">
-                <span class="label">Progress:</span>
-                <div class="progress-bar">
-                    <div class="progress" style="width: {{.Queue.Percentage}}%;"></div>
-                </div>
-                <span class="value">{{.Queue.Percentage}}</span>
-            </div>
         </div>
     </div>
 
@@ -46,11 +39,11 @@
                     <tr>
                         <td class="filename">{{.Filename}}</td>
                         <td>{{.Status}}</td>
-                        <td>
+                        <td class="progress-column">
                             <div class="progress-bar">
                                 <div class="progress" style="width: {{.Percentage}}%;"></div>
                             </div>
-                            <span class="percent">{{.Percentage}}</span>
+                            <span class="percent">{{.Percentage}}%</span>
                         </td>
                         <td>{{.SizeLeft}}</td>
                         <td>{{.TimeLeft}}</td>

@@ -129,12 +129,11 @@ type SabnzbdStatus struct {
 
 // Queue contains download queue information
 type Queue struct {
-	Status     string      `json:"status"`
-	Speed      string      `json:"speed"`
-	SizeLeft   string      `json:"sizeleft"`
-	TimeLeft   string      `json:"timeleft"`
-	Percentage string      `json:"percentage"`
-	Slots      []QueueItem `json:"slots"`
+	Status   string      `json:"status"`
+	Speed    string      `json:"speed"`
+	SizeLeft string      `json:"sizeleft"`
+	TimeLeft string      `json:"timeleft"`
+	Slots    []QueueItem `json:"slots"`
 }
 
 // QueueItem represents a single item in the download queue
