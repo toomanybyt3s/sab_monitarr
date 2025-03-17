@@ -1,6 +1,22 @@
 # SABnzbd Monitor
 
-A simple web application to monitor your SABnzbd downloads.
+A simple, lightweight frontend for monitoring your SABnzbd downloads. Designed to give users an easy way to view recently requested media and track download progress.
+
+![SABnzbd Monitor Dashboard](/docs/screenshots/dashboard.png)
+
+## Features
+
+- **Real-time updates**: Monitors download progress with configurable refresh intervals
+- **Clean, responsive UI**: Works on desktop and mobile devices
+- **Minimal resource usage**: Lightweight implementation with small footprint
+- **Zero JavaScript dependencies**: Built with HTMX for dynamic content without bulky frameworks
+- **Simple deployment**: Run as a standalone binary or with Docker
+
+## Technology
+
+- **Backend**: Written in Go (Golang) for high performance and low resource usage
+- **Frontend**: Uses HTMX for dynamic content updates without JavaScript frameworks
+- **Dependencies**: Only requires an existing SABnzbd service - nothing else!
 
 ## Configuration
 
