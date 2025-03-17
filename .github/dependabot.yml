@@ -5,7 +5,12 @@
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
+  - package-ecosystem: "gomod" # Use gomod for Go module dependencies
     directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"
+      
+  - package-ecosystem: "docker" # Add Docker support for Dockerfile dependencies
+    directory: "/" # Location of Dockerfile
     schedule:
       interval: "weekly"
