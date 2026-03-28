@@ -16,7 +16,8 @@ COPY go.* ./
 RUN go mod download
 
 # Now copy source code and build with optimization flags
-COPY main.go main_test.go ./
+COPY main.go ./
+COPY internal/ internal/
 COPY static/ static/
 COPY templates/ templates/
 
