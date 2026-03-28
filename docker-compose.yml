@@ -10,6 +10,4 @@ services:
       - SABMON_REFRESH_INTERVAL=${SABMON_REFRESH_INTERVAL:-5}
       - SABMON_DEBUG=${SABMON_DEBUG:-false}
       - SABMON_LOG_CLIENT_INFO=${SABMON_LOG_CLIENT_INFO:-false}
-    volumes:
-      - ./config.json:/app/config.json:ro
     restart: unless-stopped
