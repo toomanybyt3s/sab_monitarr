@@ -1,6 +1,7 @@
 package sabnzbd_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,7 +38,7 @@ func TestFetchStatus(t *testing.T) {
 	srv := mockServer(t)
 	defer srv.Close()
 
-	status, err := sabnzbd.FetchStatus(srv.URL, "test-api-key", false)
+	status, err := sabnzbd.FetchStatus(context.Background(), srv.URL, "test-api-key", false)
 	if err != nil {
 		t.Fatalf("FetchStatus returned error: %v", err)
 	}
@@ -70,7 +71,7 @@ func TestFetchStatusAPIKeyQueryParam(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	if _, err := sabnzbd.FetchStatus(srv.URL, "secret-key", false); err != nil {
+	if _, err := sabnzbd.FetchStatus(context.Background(), srv.URL, "secret-key", false); err != nil {
 		t.Fatalf("FetchStatus returned error: %v", err)
 	}
 	if receivedKey != "secret-key" {
@@ -84,7 +85,7 @@ func TestFetchStatusNonOKResponse(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	if _, err := sabnzbd.FetchStatus(srv.URL, "bad-key", false); err == nil {
+	if _, err := sabnzbd.FetchStatus(context.Background(), srv.URL, "bad-key", false); err == nil {
 		t.Error("expected error for non-OK response, got nil")
 	}
 }

@@ -1,11 +1,11 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/toomanybyt3s/sab_monitarr/internal/config"
 	"github.com/toomanybyt3s/sab_monitarr/internal/logger"
@@ -16,9 +16,12 @@ import (
 func New(cfg config.Config, tmpl *template.Template) http.Handler {
 	mux := http.NewServeMux()
 
-	// Static assets
+	// Static assets — served with a long-lived cache header since files are baked into the image.
 	fs := http.FileServer(http.Dir("static"))
-	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+	mux.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		http.StripPrefix("/static/", fs).ServeHTTP(w, r)
+	}))
 
 	// Index page
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -29,13 +32,17 @@ func New(cfg config.Config, tmpl *template.Template) http.Handler {
 
 		logger.Log(cfg.Debug, "INFO", "Serving index page", r, cfg.LogClientInfo)
 
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := tmpl.ExecuteTemplate(w, "index.html", map[string]interface{}{
+		var buf bytes.Buffer
+		if err := tmpl.ExecuteTemplate(&buf, "index.html", map[string]interface{}{
 			"RefreshInterval": cfg.RefreshInterval,
 			"Debug":           cfg.Debug,
 		}); err != nil {
 			logger.Log(cfg.Debug, "ERROR", fmt.Sprintf("Template execution error: %v", err), r, cfg.LogClientInfo)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
 		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		buf.WriteTo(w)
 	})
 
 	// SABnzbd status (GET/HEAD only — polled by HTMX)
@@ -47,7 +54,7 @@ func New(cfg config.Config, tmpl *template.Template) http.Handler {
 
 		logger.Log(cfg.Debug, "INFO", "Fetching SABnzbd status", r, cfg.LogClientInfo)
 
-		status, err := sabnzbd.FetchStatus(cfg.SabnzbdURL, cfg.SabnzbdAPIKey, cfg.Debug)
+		status, err := sabnzbd.FetchStatus(r.Context(), cfg.SabnzbdURL, cfg.SabnzbdAPIKey, cfg.Debug)
 		if err != nil {
 			logger.Log(cfg.Debug, "ERROR", fmt.Sprintf("Failed to fetch status: %v", err), r, cfg.LogClientInfo)
 			http.Error(w, "Failed to fetch status", http.StatusInternalServerError)
@@ -55,10 +62,14 @@ func New(cfg config.Config, tmpl *template.Template) http.Handler {
 		}
 
 		logger.Log(cfg.Debug, "INFO", "SABnzbd status fetched successfully", r, cfg.LogClientInfo)
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := tmpl.ExecuteTemplate(w, "status.html", status); err != nil {
+		var buf bytes.Buffer
+		if err := tmpl.ExecuteTemplate(&buf, "status.html", status); err != nil {
 			logger.Log(cfg.Debug, "ERROR", fmt.Sprintf("Template execution error: %v", err), r, cfg.LogClientInfo)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
 		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		buf.WriteTo(w)
 	})
 
 	return logger.Middleware(mux, cfg.Debug, cfg.LogClientInfo)
@@ -72,11 +83,11 @@ func Run() error {
 		return fmt.Errorf("configuration error: %w", err)
 	}
 
-	logger.Log(true, "INFO", "Application starting", nil, false)
-	if cfg.Debug {
-		safe := strings.Replace(fmt.Sprintf("%+v", cfg), cfg.SabnzbdAPIKey, "[REDACTED]", 1)
-		logger.Log(true, "INFO", fmt.Sprintf("Configuration: %s", safe), nil, false)
-	}
+	logger.Info("Application starting")
+	logger.Debug(cfg.Debug, fmt.Sprintf(
+		"Configuration: URL=%s RefreshInterval=%d Debug=%v LogClientInfo=%v APIKey=[REDACTED]",
+		cfg.SabnzbdURL, cfg.RefreshInterval, cfg.Debug, cfg.LogClientInfo,
+	))
 
 	tmpl, err := template.ParseFiles(
 		"templates/index.html",

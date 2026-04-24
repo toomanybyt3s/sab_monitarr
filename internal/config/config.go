@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -65,6 +66,9 @@ func Load() (Config, error) {
 func Validate(cfg *Config) error {
 	if cfg.SabnzbdURL == "" {
 		return fmt.Errorf("sabnzbd URL is required (set %s)", EnvSabnzbdURL)
+	}
+	if u, err := url.Parse(cfg.SabnzbdURL); err != nil || (u.Scheme != "http" && u.Scheme != "https") {
+		return fmt.Errorf("sabnzbd URL must be a valid http/https URL (set %s)", EnvSabnzbdURL)
 	}
 
 	if cfg.SabnzbdAPIKey == "" {

@@ -24,6 +24,19 @@ func Log(debug bool, level, message string, r *http.Request, logClientInfo bool)
 	}
 }
 
+// Info logs an INFO-level message (no request context).
+func Info(message string) { log.Printf("[INFO] %s", message) }
+
+// Debug logs a DEBUG-level message only when debug mode is enabled (no request context).
+func Debug(debug bool, message string) {
+	if debug {
+		log.Printf("[DEBUG] %s", message)
+	}
+}
+
+// Error logs an ERROR-level message (no request context).
+func Error(message string) { log.Printf("[ERROR] %s", message) }
+
 // GetClientIP returns the client's IP address from the request.
 // It uses the last (outermost) entry in X-Forwarded-For, which is set by
 // the nearest trusted proxy and cannot be spoofed by the client.

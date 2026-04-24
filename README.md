@@ -1,113 +1,77 @@
 # SABnzbd Monitor
 
-A simple, lightweight frontend for monitoring your SABnzbd downloads. Designed to give users an easy way to view recently requested media and track download progress.
+A lightweight web frontend for monitoring SABnzbd download queues in real time.
 
 ![SABnzbd Monitor Dashboard](/docs/screenshots/dashboard.png)
 
-## Features
+## What it does
 
-- **Real-time updates**: Monitors download progress with configurable refresh intervals
-- **Clean, responsive UI**: Works on desktop and mobile devices
-- **Minimal resource usage**: Lightweight Go binary in a distroless container image
-- **Zero external JavaScript dependencies**: HTMX (v2.0.8) is downloaded at image build time — no CDN required at runtime
-- **Docker-only deployment**: Designed to run exclusively via Docker / Docker Compose
-- **Environment-variable configuration**: No config files — all settings passed as env vars
+- Polls the SABnzbd API and displays the download queue with speed, size, and time remaining
+- Auto-refreshes the UI via HTMX at a configurable interval (minimum 2 s)
+- Runs as a single static binary inside a distroless container — minimal attack surface
+- All configuration via environment variables — no config files
 
-## Technology
+## Tech stack
 
-- **Backend**: Go (stdlib only, no external dependencies)
-- **Frontend**: HTMX for dynamic content updates without JavaScript frameworks
-- **Container**: Multi-stage Docker build; final image is `gcr.io/distroless/static:nonroot`
-- **Dependencies**: Only requires an existing SABnzbd instance — nothing else
+| | |
+|---|---|
+| **Language** | Go 1.26.1 (stdlib only, no external dependencies) |
+| **Frontend** | HTMX 2.0.8 (fetched at image build time, not committed) |
+| **Base image** | `gcr.io/distroless/static:nonroot` |
+| **Requires** | A running SABnzbd instance |
 
-## Project Structure
+## Project layout
 
 ```
+main.go               — Entry point
 internal/
-  config/     — Config struct, env var loading and validation
-  logger/     — Debug logging, client IP extraction, HTTP middleware
-  sabnzbd/    — SABnzbd API client and response types
-  server/     — HTTP routes, handlers, server startup
-main.go       — Entry point (calls server.Run)
-templates/    — Go HTML templates (index.html, status.html)
-static/       — CSS and assets (htmx.min.js injected at build time)
+  config/             — Env var loading and validation
+  logger/             — Levelled logging, client IP, HTTP middleware
+  sabnzbd/            — SABnzbd API client and response types
+  server/             — HTTP routes and handlers
+templates/            — index.html, status.html
+static/               — CSS; htmx.min.js injected at build time
 ```
 
 ## Configuration
 
-Configuration is done **exclusively via environment variables**. There is no config file.
+Environment variables only — no config file.
 
 | Variable | Description | Default |
-|----------|-------------|---------|
-| `SABMON_SABNZBD_URL` | Full URL to your SABnzbd instance | *Required* |
-| `SABMON_SABNZBD_API_KEY` | SABnzbd API key | *Required* |
-| `SABMON_REFRESH_INTERVAL` | UI poll interval in seconds (minimum: 2) | `5` |
-| `SABMON_DEBUG` | Enable verbose debug logging | `false` |
-| `SABMON_LOG_CLIENT_INFO` | Log client IP and User-Agent per request | `false` |
-| `HOST_PORT` | Host port to expose the web UI on | `5959` |
+|---|---|---|
+| `SABMON_SABNZBD_URL` | Full URL to SABnzbd (no trailing slash) | **required** |
+| `SABMON_SABNZBD_API_KEY` | SABnzbd API key | **required** |
+| `SABMON_REFRESH_INTERVAL` | Poll interval in seconds (min 2) | `5` |
+| `SABMON_DEBUG` | Verbose debug logging | `false` |
+| `SABMON_LOG_CLIENT_INFO` | Log client IP and User-Agent | `false` |
+| `HOST_PORT` | Host port mapped to container port 5959 | `5959` |
 
-> The container always listens on port **5959**. Use `HOST_PORT` to remap it on the host.
-
-## Running with Docker Compose
+## Running
 
 ```bash
-# Copy the example env file and fill in your values
-cp .env.example .env
-$EDITOR .env
-
-# Build and start
-make up
-
-# Stop
-make down
+cp .env.example .env   # fill in SABMON_SABNZBD_URL and SABMON_SABNZBD_API_KEY
+make up                # build image and start container
+make down              # stop and remove container
 ```
 
-The UI will be available at `http://localhost:5959` (or whatever `HOST_PORT` is set to).
+UI available at `http://localhost:5959` (or your `HOST_PORT`).
 
-### docker-compose.yml environment variables
+## Makefile
 
-```yaml
-environment:
-  - SABMON_SABNZBD_URL=${SABMON_SABNZBD_URL}
-  - SABMON_SABNZBD_API_KEY=${SABMON_SABNZBD_API_KEY}
-  - SABMON_REFRESH_INTERVAL=${SABMON_REFRESH_INTERVAL:-5}
-  - SABMON_DEBUG=${SABMON_DEBUG:-false}
-  - SABMON_LOG_CLIENT_INFO=${SABMON_LOG_CLIENT_INFO:-false}
-```
-
-## Makefile Targets
-
-| Target | Description |
-|--------|-------------|
+| Target | Action |
+|---|---|
 | `make build` | Build the Docker image |
-| `make up` | Build and start the service with Docker Compose |
+| `make up` | Build and start via Docker Compose |
 | `make down` | Stop and remove containers |
-| `make test` | Run all Go tests with verbose output |
-| `make coverage` | Run tests and print total coverage percentage |
+| `make test` | Run all tests (`go test ./... -v`) |
+| `make coverage` | Run tests and print total coverage % |
 
 ## Development
 
-### Prerequisites
-
-- Go 1.26+
-- Docker with the Compose plugin (`docker compose`)
-
-### Running tests
+**Requirements:** Go 1.26+, Docker with the Compose plugin.
 
 ```bash
-make test
+make test      # run all tests
+make coverage  # test + coverage summary
+make build     # build Docker image
 ```
-
-### Coverage report
-
-```bash
-make coverage
-```
-
-### Building the Docker image manually
-
-```bash
-make build
-```
-
-HTMX v2.0.8 is fetched via `wget` during the Docker build stage and embedded into the image — no internet access is required at runtime and the file is never committed to the repository.

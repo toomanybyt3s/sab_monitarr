@@ -22,6 +22,18 @@ func TestValidate(t *testing.T) {
 		t.Error("expected error for missing URL, got nil")
 	}
 
+	// Invalid URL scheme
+	badURL := config.Config{SabnzbdURL: "ftp://localhost:8080", SabnzbdAPIKey: "key", RefreshInterval: 5}
+	if err := config.Validate(&badURL); err == nil {
+		t.Error("expected error for non-http URL, got nil")
+	}
+
+	// Malformed URL
+	malformed := config.Config{SabnzbdURL: "://bad", SabnzbdAPIKey: "key", RefreshInterval: 5}
+	if err := config.Validate(&malformed); err == nil {
+		t.Error("expected error for malformed URL, got nil")
+	}
+
 	noKey := config.Config{SabnzbdURL: "http://localhost:8080", RefreshInterval: 5}
 	if err := config.Validate(&noKey); err == nil {
 		t.Error("expected error for missing API key, got nil")

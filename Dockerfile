@@ -5,7 +5,7 @@ WORKDIR /app
 # Set build arguments for optimization
 ENV CGO_ENABLED=0
 ENV GOOS=linux
-ENV GOARCH=amd64
+# GOARCH is intentionally left unset — use `docker buildx build --platform` to target a specific arch.
 
 # Download HTMX at build time so it is never committed to the repository
 RUN wget -q -O /tmp/htmx.min.js \
